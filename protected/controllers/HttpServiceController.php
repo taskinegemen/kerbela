@@ -18,6 +18,8 @@ class HttpServiceController extends Controller
 		$myarray=$kerberized->ticketValidation();
 
 		error_log("ticket validation:".print_r($myarray,1));
+		error_log("user id".$kerberized->getUserId());
+
 
 		$kerberized->authenticate();			
 	}

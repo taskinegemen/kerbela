@@ -104,41 +104,41 @@ class KerberizedServer{
 							//REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'access to server from different ip prevented!')));	
 							}
 							else{
-								REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'access to server from different ip prevented!')));	
+								REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'access to server from different ip prevented!')));	
 							}
 						}
 						else{
-							REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'dead ticket!')));
+							REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'dead ticket!')));
 						}
 					}
 					else{
-						REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'ticket timeout!')));
+						REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'ticket timeout!')));
 
 					}
 
 
 				}
 				else{
-					REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'user_id injection attack prevented!')));
+					REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'user_id injection attack prevented!')));
 				}
 			
 			}
 			else
 				{
-					REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'replay attack prevented!')));
+					REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'replay attack prevented!')));
 				}
 
 			}
 			else
 			{
-				REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'Http service is not available!')));
+				REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'Http service is not available!')));
 			}
 	}
 	public function getUserId(){
 		$HTTP_service_secret_key=$this->getHTTPServiceSecretKey();
 		$HTTP_service_ticket_decrypted=CJSON::decode($this->decoder($this->getEcryptionLib()->decrypt($this->getHttpServiceTicket(),$HTTP_service_secret_key)));
 		$HTTP_service_session_key=$HTTP_service_ticket_decrypted['HTTP_service_session_key'];
-		$AUTH_decrypted=CJSON::decode($this->decrypt($this->getAuth(),$HTTP_service_session_key));
+		$AUTH_decrypted=CJSON::decode($this->decoder($this->getEcryptionLib()->decrypt($this->getAuth(),$HTTP_service_session_key)));
 		return $AUTH_decrypted['user_id'];
 	}
 	/*internal functions*/

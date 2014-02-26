@@ -4,17 +4,19 @@
  	var TicketGrantingServer;
  	var KerberizedServer;
  	var UserId;
+ 	var Password;
  	var RequestedService;
  	var RequestedHttpService;
  	var Ip;
  	var RequestedLifetime;
 
- 	$.fn.kerbelainit=function(AS,TGS,KS,UI,RS,RHS,RL){
+ 	$.fn.kerbelainit=function(AS,TGS,KS,UI,PWD,RS,RHS,RL){
  		$.ajaxSetup({async:false});
  		this.setAS(AS);
  		this.setTGS(TGS);
  		this.setKS(KS);
  		this.setUserId(UI);
+ 		this.setPassword(PWD);
  		this.setRequestedService(RS);
  		this.setRequestedHttpService(RHS);
  		this.setRequestedLifetime(RL);
@@ -40,6 +42,9 @@
  	$.fn.setRequestedHttpService=function(RHS){this.RequestedHttpService=RHS;};
  	$.fn.getRequestedHttpService=function(){return this.RequestedHttpService;};
 
+ 	$.fn.setPassword=function(PWD){this.Password=PWD;};
+ 	$.fn.getPassword=function(){return this.Password;};
+
  	$.fn.setIp=function(){
  		var that=this;
  		var result=new Object();
@@ -52,6 +57,9 @@
 
  	$.fn.setRequestedLifetime=function(RL){this.RequestedLifetime=RL;};
  	$.fn.getRequestedLifetime=function(){return this.RequestedLifetime;};
+
+ 	$.fn.setTicket=function(HTTP_service_session_key,HTTP_service_ticket){window.sessionStorage.ticket=JSON.stringify({HTTP_service_session_key:HTTP_service_session_key,HTTP_service_ticket:HTTP_service_ticket});}
+ 	$.fn.getTicket=function(){return JSON.parse(window.sessionStorage.ticket);};
 
  	$.fn.decoder=function (string){
 		var json=new Object();
@@ -69,14 +77,14 @@
 		return Math.round((new Date()).getTime() / 1000);
 	};
 
-	$.fn.decrypt=function (EncryptedData,Key){
+	$.fn.decrypt=function (EncryptedData,Key,Error){
+		var result;
 		try{
-			var result =this.decoder(CryptoJS.AES.decrypt(EncryptedData, Key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
+			result =this.decoder(CryptoJS.AES.decrypt(EncryptedData, Key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
 		}
 		catch(err){
-			var result=EncryptedData;
+			result=Error;
 		}
-		console.log(result);
 		return result;
 	};  
 
@@ -91,7 +99,26 @@
 		  			dataType: dataType
 				});
 	}
-
+	$.fn.getSource=function(destination,data){
+		console.log(this.getTicket());
+		var ticket=this.getTicket();
+		var HTTP_service_session_key=ticket.HTTP_service_session_key;
+		var HTTP_service_ticket=ticket.HTTP_service_ticket;
+		
+		var AUTH=CryptoJS.AES.encrypt("{user_id:"+this.getUserId()+",timestamp:"+this.getTimestamp()+"}", HTTP_service_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.base64);
+		var result=new Object();
+		var postData={
+					'auth':encodeURI(AUTH),
+					'http_service_ticket':encodeURI(HTTP_service_ticket),
+					'type':'web'
+				};
+		$.extend(postData,data);		
+		this.makeRequest(destination,postData,function(response){result['source']=response;},"text");
+		httpservice=result.source;
+		httpservice_response_decrypted=this.decrypt(httpservice,HTTP_service_session_key,result.source);
+		if(httpservice_response_decrypted.status==false){return httpservice_response_decrypted;}
+		console.log(httpservice_response_decrypted);
+	}
 	$.fn.execute=function(){
 		var result=new Object();
 
@@ -103,17 +130,15 @@
 						'requested_lifetime' : this.getRequestedLifetime(),
 						'type':'web'
 				},function(response){result['source']=response;});
-		console.log(result);
 		var TGT=result.source.TGT;
 		var TGT_client=result.source.TGT_client;
-		var TGS_client_key=CryptoJS.SHA256('12548442').toString(CryptoJS.enc.Hex);
-		var TGT_client_decrypted =this.decrypt(TGT_client,TGS_client_key);
+		var TGS_client_key=CryptoJS.SHA256(this.getPassword()).toString(CryptoJS.enc.Hex);
+		var TGT_client_decrypted =this.decrypt(TGT_client,TGS_client_key,result.source);
+		if(TGT_client_decrypted.status==false){return TGT_client_decrypted;}
 		console.log(TGT_client_decrypted);
 		TGS_session_key=TGT_client_decrypted.TGS_session_key;
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		var AUTH=CryptoJS.AES.encrypt("{user_id:"+this.getUserId()+",timestamp:"+this.getTimestamp()+"}", TGS_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.base64);
-		var AUTH_Dec=this.decoder(CryptoJS.AES.decrypt(AUTH, TGS_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
-		console.log(AUTH_Dec);
 		result=new Object();
 		this.makeRequest(this.getTGS(),
 				{
@@ -123,26 +148,32 @@
 						'tgt':encodeURI(TGT),
 						'type':'web'
 				},function(response){result['source']=response;});
-		console.log(result.source);
 		HTTP_service_ticket=result.source.HTTP_service_ticket;
 		HTTP_session_ticket=result.source.HTTP_session_ticket;
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		HTTP_session_ticket_decrypted=this.decoder(CryptoJS.AES.decrypt(HTTP_session_ticket, TGS_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
+		HTTP_session_ticket_decrypted=this.decrypt(HTTP_session_ticket,TGS_session_key,result.source);
+		if(HTTP_session_ticket_decrypted.status==false){return HTTP_session_ticket_decrypted;}
+		console.log(HTTP_session_ticket_decrypted);
 		HTTP_service_session_key=HTTP_session_ticket_decrypted.HTTP_service_session_key;
 
 		var AUTH=CryptoJS.AES.encrypt("{user_id:"+this.getUserId()+",timestamp:"+this.getTimestamp()+"}", HTTP_service_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.base64);
 		result=new Object();
-		this.makeRequest("/httpservice/authenticate",
+		this.makeRequest(this.getKS(),
 				{
 					'auth':encodeURI(AUTH),
 					'http_service_ticket':encodeURI(HTTP_service_ticket),
 					'type':'web'
 				},function(response){result['source']=response;},"text");
 		httpservice=result.source;
-		httpservice_response_decrypted=this.decoder(CryptoJS.AES.decrypt(httpservice, HTTP_service_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
+		httpservice_response_decrypted=this.decrypt(httpservice,HTTP_service_session_key,result.source);
+		if(httpservice_response_decrypted.status==false){return httpservice_response_decrypted;}
+		//this.decoder(CryptoJS.AES.decrypt(httpservice, HTTP_service_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
 		console.log(httpservice_response_decrypted);
+
+		this.setTicket(HTTP_service_session_key,HTTP_service_ticket);
+
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		return {status:true,HTTP_service_session_key:HTTP_service_session_key,HTTP_session_ticket:HTTP_session_ticket};
+		return {status:true,message:'successfully connected to '+this.getKS()};
 
 	}
 

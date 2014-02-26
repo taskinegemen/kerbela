@@ -37,7 +37,7 @@ class AuthenticationServer{
 		}
 		else
 		{
-			REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'Authentication failed!')));
+			REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'Authentication failed!')));
 		}
 	}
 	/*internal apis*/
