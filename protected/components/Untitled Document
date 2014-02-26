@@ -1,0 +1,98 @@
+<?php
+class AuthenticationServer{
+	private $userId;
+	private $requestedService;
+	private $ip;
+	private $requestedLifetime;
+
+	public function __construct($userId,$requestedService,$requestedLifetime,$ip=""){
+		$this->setSuper($userId,$requestedService,$requestedLifetime,$ip);
+	}
+
+	private function setSuper($userId,$requestedService,$requestedLifetime,$ip){
+		$this->setUserId($userId);
+		$this->setRequestedService($requestedService);
+		$this->setIp($ip);
+		$this->setRequestedLifetime($requestedLifetime);
+	} 
+
+	public function authenticate(){
+		if($this->is_user_available() && $this->is_ip_valid()){
+
+			$TGS_session_key=hash('sha256',rand()+time());
+			$TGS_secret_key=$this->getTGSSecretKey();
+			$TGS_client_key=$this->getClientKey();
+
+
+			$timestamp=time();
+			$TGT=$this->encrypt(json_encode(array('user_id'=>$this->getUserId(),'requested_service'=>$this->getRequestedService(),'timestamp'=>$timestamp,'ip'=>$this->getIp(),'requested_lifetime'=>$this->getRequestedLifetime(),'TGS_session_key'=>$TGS_session_key)),$TGS_secret_key);
+			$TGT_client=$this->encrypt(json_encode(array('requested_service'=>$this->getRequestedService(),'timestamp'=>$timestamp,'requested_lifetime'=>$this->getRequestedLifetime(),'TGS_session_key'=>$TGS_session_key)),$TGS_client_key);
+			REST::sendResponse(200,CJSON::encode(array('TGT'=>base64_encode($TGT),'TGT_client'=>base64_encode($TGT_client))));
+		}
+		else
+		{
+			REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'Authentication failed!')));
+		}
+	}
+	/*internal apis*/
+
+	private function is_user_available(){
+		return User::model()->exists('user_id=:user_id',array('user_id'=>$this->getUserId()));
+		
+	}
+	private function getTGSSecretKey(){
+		$tgs=Tgs::model()->find('tgs_name=:tgs_name',array('tgs_name'=>$this->getRequestedService()));
+		return $tgs->tgs_secret_key;
+	}
+	private function is_ip_valid(){
+		return $this->getIp()==Yii::app()->request->getUserHostAddress();
+	}
+	private function getClientKey(){
+		$user=User::model()->find('user_id=:user_id',array('user_id'=>$this->getUserId()));
+		return $user->password;
+	}
+	private function encrypt($data,$key){
+		return openssl_encrypt ($data,'aes256' , $key,true,$iv=substr($key,0,16));
+	}
+	private function decrypt($data,$key){
+		return openssl_decrypt ($data,'aes256' , $key,true,$iv=substr($key,0,16));
+	}
+	/*setter and getters*/
+	public function setUserId($userId){
+		$this->userId=$userId;
+	}
+	
+	public function getUserId(){
+		return $this->userId;
+	}
+
+	public function setRequestedService($requestedService){
+		$this->requestedService=$requestedService;
+	}
+
+	public function getRequestedService(){
+		return $this->requestedService;
+	}
+
+	public function setIp($ip){
+		$this->ip=$ip;
+	}
+
+	public function getIp(){
+		if($this->ip==""){
+
+			$this->setIp(Yii::app()->request->getUserHostAddress());
+		}
+		return $this->ip;
+	}
+
+	public function setRequestedLifetime($requestedLifetime){
+		$this->requestedLifetime=$requestedLifetime;
+	}
+
+	public function getRequestedLifetime(){
+		return $this->requestedLifetime;
+	}
+}
+
+?>
