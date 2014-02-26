@@ -86,15 +86,15 @@ class TicketGrantingServer{
 
 							}
 							else{
-								REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'access to server from different ip prevented!')));	
+								REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'access to server from different ip prevented!')));	
 							}
 						}
 						else{
-							REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'dead ticket!')));
+							REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'dead ticket!')));
 						}
 					}
 					else{
-						REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'ticket timeout!')));
+						REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'ticket timeout!')));
 
 					}
 
@@ -102,17 +102,17 @@ class TicketGrantingServer{
 
 				}
 				else{
-					REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'user_id injection attack prevented!','auth'=>$AUTH_decrypted,'tgt'=>$TGT_decrypted)));
+					REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'user_id injection attack prevented!','auth'=>$AUTH_decrypted,'tgt'=>$TGT_decrypted)));
 				}
 			
 			}
 			else{
-					REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'replay attack prevented!')));
+					REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'replay attack prevented!')));
 			}
 		}
 		else
 		{
-			REST::sendResponse(200,CJSON::encode(array('status'=>'false','message'=>'Http service is not available!')));
+			REST::sendResponse(200,CJSON::encode(array('status'=>False,'message'=>'Http service is not available!')));
 		}
 
 

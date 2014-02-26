@@ -17,10 +17,11 @@
 
 	$(document).ready(function()
 	{
-		var kerbela=$(window).kerbelainit('/api/authenticate/','/api/ticketgrant/','/httpservice/authenticate','egemxen@linden-tech.com','kerbela','koala','6000');
-		window.k=kerbela;
+		var kerbela=$(window).kerbelainit('http://kerbela.lindneo.com/api/authenticate/','http://kerbela.lindneo.com/api/ticketgrant/','http://kerbela.lindneo.com/httpservice/authenticate','egemen@linden-tech.com','12548442','kerbela','koala','6000');
 		var response=kerbela.execute();
 		console.log(response);
+
+		console.log(kerbela.getSource('http://kerbela.lindneo.com/httpservice/service',{name:'egemen',surname:'taskin'}));
 
 
 		/*

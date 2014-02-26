@@ -5578,3 +5578,52 @@ Stack trace:
 REQUEST_URI=/api/getip
 HTTP_REFERER=http://kerbela.lindneo.com/HttpService/
 ---
+2014/02/26 08:35:04 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'The system is unable to find the requested action "koala".' in /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php:483
+Stack trace:
+#0 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php(270): CController->missingAction('koala')
+#1 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(282): CController->run('koala')
+#2 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(141): CWebApplication->runController('HttpService/koa...')
+#3 /var/www/kerbela/yii-1.1.14.f0fee9/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#4 /var/www/kerbela/index.php(13): CApplication->run()
+#5 {main}
+REQUEST_URI=/HttpService/koala
+HTTP_REFERER=http://kerbela.lindneo.com/HttpService/
+---
+2014/02/26 09:18:52 [error] [php] Object of class KerberizedServer could not be converted to string (/var/www/kerbela/protected/controllers/HttpServiceController.php:21)
+Stack trace:
+#0 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php(286): HttpServiceController->runAction()
+#1 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php(265): HttpServiceController->runActionWithFilters()
+#2 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(282): HttpServiceController->run()
+#3 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /var/www/kerbela/yii-1.1.14.f0fee9/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /var/www/kerbela/index.php(13): CWebApplication->run()
+REQUEST_URI=/httpservice/service
+in /var/www/kerbela/protected/controllers/HttpServiceController.php (21)
+in /var/www/kerbela/index.php (13)
+2014/02/26 09:20:56 [error] [php] Object of class KerberizedServer could not be converted to string (/var/www/kerbela/protected/controllers/HttpServiceController.php:21)
+Stack trace:
+#0 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php(286): HttpServiceController->runAction()
+#1 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CController.php(265): HttpServiceController->runActionWithFilters()
+#2 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(282): HttpServiceController->run()
+#3 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /var/www/kerbela/yii-1.1.14.f0fee9/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /var/www/kerbela/index.php(13): CWebApplication->run()
+REQUEST_URI=/httpservice/service
+in /var/www/kerbela/protected/controllers/HttpServiceController.php (21)
+in /var/www/kerbela/index.php (13)
+2014/02/26 09:40:37 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "favicon.ico".' in /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php:286
+Stack trace:
+#0 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(141): CWebApplication->runController('favicon.ico')
+#1 /var/www/kerbela/yii-1.1.14.f0fee9/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#2 /var/www/kerbela/index.php(13): CApplication->run()
+#3 {main}
+REQUEST_URI=/favicon.ico
+---
+2014/02/26 09:40:37 [error] [exception.CHttpException.404] exception 'CHttpException' with message 'Unable to resolve the request "favicon.ico".' in /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php:286
+Stack trace:
+#0 /var/www/kerbela/yii-1.1.14.f0fee9/framework/web/CWebApplication.php(141): CWebApplication->runController('favicon.ico')
+#1 /var/www/kerbela/yii-1.1.14.f0fee9/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#2 /var/www/kerbela/index.php(13): CApplication->run()
+#3 {main}
+REQUEST_URI=/favicon.ico
+---
