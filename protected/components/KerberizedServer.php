@@ -187,12 +187,10 @@ class KerberizedServer{
 		$string=explode(',',$string);
 		for($i=0;$i<sizeof($string);$i++){
 			$item=explode(':',$string[$i]);
-			//$json[$item[0].'']=trim($item[1]);
 			$item[0]=utf8_encode($item[0]);
 			$item[1]=utf8_encode($item[1]);
 			$json+=array($item[0]=>$item[1]);
 		}
-		$json+=array('user_id'=>'sdfdsf');
 		return CJSON::encode($json);
 	}
 		else
