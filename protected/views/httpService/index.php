@@ -16,12 +16,12 @@
 
 
 	$(document).ready(function()
-	{
-		var kerbela=$(window).kerbelainit('http://kerbela.lindneo.com/api/authenticate/','http://kerbela.lindneo.com/api/ticketgrant/','http://kerbela.lindneo.com/httpservice/authenticate','egemen@linden-tech.com','12548442','kerbela','koala','6000');
+	{//'http://kerbela.lindneo.com/httpservice/authenticate'
+		var kerbela=$(window).kerbelainit('http://kerbela.lindneo.com/api/authenticate/','http://kerbela.lindneo.com/api/ticketgrant/','http://koala.lindneo.com/api/authenticate','egemen@linden-tech.com','12548442','kerbela','koala','6000');
 		var response=kerbela.execute();
 		console.log(response);
 
-		console.log(kerbela.getSource('http://kerbela.lindneo.com/httpservice/service',{name:'egemen',surname:'taskin'}));
+		//console.log(kerbela.getSource('http://koala.lindneo.com/api/documentation',{name:'egemen',surname:'taskin'}));
 
 
 		/*
