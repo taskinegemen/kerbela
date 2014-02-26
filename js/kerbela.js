@@ -118,6 +118,7 @@
 		httpservice_response_decrypted=this.decrypt(httpservice,HTTP_service_session_key,result.source);
 		if(httpservice_response_decrypted.status==false){return httpservice_response_decrypted;}
 		console.log(httpservice_response_decrypted);
+		return httpservice_response_decrypted;
 	}
 	$.fn.execute=function(){
 		var result=new Object();
