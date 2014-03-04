@@ -88,16 +88,13 @@
 			result =this.decoder(CryptoJS.AES.decrypt(EncryptedData, Key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
 		}
 		catch(err){
-			/*
-			console.log(Error);
 			if(Error.status==undefined){
 				result={status:false,message:'User password is incorrect!'};
 			}
 			else
 			{
 			result=Error; 
-			}*/
-			result=Error;
+			}
 		}
 		console.log(result);
 		return result;
