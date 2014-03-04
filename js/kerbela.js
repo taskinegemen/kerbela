@@ -1,5 +1,6 @@
 (function ( $ ) {
 
+	var ConfigServer;
     var AuthenticationServer;
  	var TicketGrantingServer;
  	var KerberizedServer;
@@ -10,8 +11,9 @@
  	var Ip;
  	var RequestedLifetime;
 
- 	$.fn.kerbelainit=function(AS,TGS,KS,UI,PWD,RS,RHS,RL){
+ 	$.fn.kerbelainit=function(CS,AS,TGS,KS,UI,PWD,RS,RHS,RL){
  		$.ajaxSetup({async:false});
+ 		this.setCS(CS);
  		this.setAS(AS);
  		this.setTGS(TGS);
  		this.setKS(KS);
@@ -23,6 +25,9 @@
  		this.setIp();
  		return this;
  	};
+
+ 	$.fn.setCS=function(CS){this.ConfigServer=CS;};
+ 	$.fn.getCS=function(){return this.ConfigServer;};
  	
  	$.fn.setAS=function(AS){this.AuthenticationServer=AS;};
  	$.fn.getAS=function(){return this.AuthenticationServer;};
@@ -48,7 +53,7 @@
  	$.fn.setIp=function(){
  		var that=this;
  		var result=new Object();
-		this.makeRequest('/api/getip',
+		this.makeRequest(this.getCS()+'/api/getip',
 				'',function(response){that.Ip=response.ip;},'','GET');
 		
 
@@ -83,8 +88,18 @@
 			result =this.decoder(CryptoJS.AES.decrypt(EncryptedData, Key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.Utf8));
 		}
 		catch(err){
+			/*
+			console.log(Error);
+			if(Error.status==undefined){
+				result={status:false,message:'User password is incorrect!'};
+			}
+			else
+			{
+			result=Error; 
+			}*/
 			result=Error;
 		}
+		console.log(result);
 		return result;
 	};  
 
@@ -98,6 +113,12 @@
 		  			success: callback,
 		  			dataType: dataType
 				});
+	}
+	$.fn.getAuthTicket=function(){
+		var ticket=this.getTicket();
+		var HTTP_service_session_key=ticket.HTTP_service_session_key;
+		console.log(HTTP_service_session_key);
+		return CryptoJS.AES.encrypt("{user_id:"+this.getUserId()+",timestamp:"+this.getTimestamp()+"}", HTTP_service_session_key,{mode:CryptoJS.mode.CBC}).toString(CryptoJS.enc.base64);
 	}
 	$.fn.getSource=function(destination,data){
 		console.log(this.getTicket());
@@ -153,6 +174,7 @@
 		HTTP_session_ticket=result.source.HTTP_session_ticket;
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		HTTP_session_ticket_decrypted=this.decrypt(HTTP_session_ticket,TGS_session_key,result.source);
+		console.log(HTTP_session_ticket_decrypted.status);
 		if(HTTP_session_ticket_decrypted.status==false){return HTTP_session_ticket_decrypted;}
 		console.log(HTTP_session_ticket_decrypted);
 		HTTP_service_session_key=HTTP_session_ticket_decrypted.HTTP_service_session_key;
