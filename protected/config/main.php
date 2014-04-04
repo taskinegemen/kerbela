@@ -62,10 +62,9 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=kerbela',
-			'emulatePrepare' => true,
-			'username' => 'root',
-			'password' => '12548442',
+			'connectionString' => 'mysql:host=lindneo.com;dbname=kerbela',
+			'username' => 'db_kerbela',
+			'password' => 'wN3vqns9VtmQJquB',
 			'charset' => 'utf8',
 		),
 		
