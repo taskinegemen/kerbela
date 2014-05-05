@@ -7,7 +7,13 @@
  * @property integer $id
  * @property string $user_id
  * @property string $password
- * @property string $contact
+ * @property string $name
+ * @property string $surname
+ * @property string $birth_date
+ * @property string $gender
+ * @property string $tel
+ * @property string $city
+ * @property string $recoveryCode
  */
 class User extends CActiveRecord
 {
@@ -27,12 +33,15 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, password, contact', 'required'),
-			array('user_id, contact', 'length', 'max'=>40),
+			array('user_id, password', 'required'),
+			array('user_id', 'length', 'max'=>40),
 			array('password', 'length', 'max'=>155),
+			array('name, surname, tel, city', 'length', 'max'=>50),
+			array('gender', 'length', 'max'=>6),
+			array('gender, birth_date, recoveryCode', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, user_id, password, contact', 'safe', 'on'=>'search'),
+			array('id, user_id, password, name, surname, birth_date, gender, tel, city, recoveryCode', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -56,7 +65,13 @@ class User extends CActiveRecord
 			'id' => 'ID',
 			'user_id' => 'User',
 			'password' => 'Password',
-			'contact' => 'Contact',
+			'name' => 'Name',
+			'surname' => 'Surname',
+			'birth_date' => 'Birth Date',
+			'gender' => 'Gender',
+			'tel' => 'Tel',
+			'city' => 'City',
+			'recoveryCode' => 'recoveryCode',
 		);
 	}
 
@@ -81,7 +96,12 @@ class User extends CActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('user_id',$this->user_id,true);
 		$criteria->compare('password',$this->password,true);
-		$criteria->compare('contact',$this->contact,true);
+		$criteria->compare('name',$this->name,true);
+		$criteria->compare('surname',$this->surname,true);
+		$criteria->compare('birth_date',$this->birth_date,true);
+		$criteria->compare('gender',$this->gender,true);
+		$criteria->compare('tel',$this->tel,true);
+		$criteria->compare('city',$this->city,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
