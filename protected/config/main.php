@@ -87,12 +87,24 @@ return array(
 				*/
 			),
 		),
+		'Smtpmail'=>array(
+            'class'=>'application.extension.smtpmail.PHPMailer',
+            'Host'=>"tls://smtp.gmail.com",
+            'Username'=>'noreply@okutus.com',
+            'Password'=>'7m68FJ:J:JHoAeY',
+            'Mailer'=>'smtp',
+            'Port'=>465,
+            'SMTPAuth'=>true, 
+           	//'SMTPSecure' => 'tls',
+        ),
 	),
 
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
 		// this is used in contact page
-		'adminEmail'=>'webmaster@example.com',
+		'adminEmail'=>'pacific@linden-tech.com',
+		'noreplyEmail'=>'noreply@okutus.com',
+		'reader_host'=>'http://reader.lindneo.com/ekaratas',
 	),
 );

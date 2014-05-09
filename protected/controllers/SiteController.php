@@ -32,6 +32,122 @@ class SiteController extends Controller
 		$this->render('index');
 	}
 
+	public function actionSignUp()
+	{
+		$res=array();
+		$isUser=User::model()->findAll('user_id=:user_id',array('user_id'=>$_POST['email']));
+		//$isUser=Yii::app()->db->createCommand('SELECT * FROM user where user_id="'.$_POST['email'].'"')->queryRow();
+		//print_r($isUser);
+		if (empty($isUser)) {
+			if ($_POST['password']==$_POST['passwordR']) {
+				$user=new User;
+				$user->password=hash('sha256',$_POST['password']);
+				$user->user_id=$_POST['email'];
+				$user->name=$_POST['name'];
+				$user->surname=$_POST['surname'];
+				// $user->birth_date=$_POST['birthdate'];
+				// $user->gender=$_POST['gender'];
+				// $user->tel=$_POST['tel'];
+				// $user->city=$_POST['city'];
+				if ($user->save()) {
+					$res['result']=1;
+					$res['message']='Başarılı';
+					$res['user_id']=$user->user_id;
+					$res['password']=$_POST['password'];
+				}
+				else
+				{
+					$res['result']=0;
+					$res['message']='Beklenmeyen bir hatayla karşılaşıldı!';
+				}
+			}
+			else
+			{
+				$res['result']=0;
+				$res['message']='Şifre doğrulama hatalı!';
+			}
+		}else
+		{
+			$res['result']=0;
+			$res['message']='Bu email adresine sahip bir kullanıcı zaten var.';
+		}
+		echo json_encode($res);
+	}
+
+	
+
+	public function actionUpdatePassword()
+	{
+		if (isset($_POST['code'])&& isset($_POST['password'])) {
+			$user=User::model()->find('recoveryCode=:recoveryCode',array('recoveryCode'=>$_POST['code']));
+			$user->password=hash('sha256',$_POST['password']);
+			$user->recoveryCode="";
+			if ($user->save()) {
+				echo 1;
+			}
+			else
+			{
+				echo 0;
+			}
+		}
+	}
+
+	public function actionCheckVerifyCode()
+	{
+		if (isset($_POST['id'])) {
+			$user=User::model()->find('recoveryCode=:recoveryCode',array('recoveryCode'=>$_POST['id']));
+			if ($user) {
+				echo 1;
+			}
+			else
+			{
+				echo 0;
+			}
+		}
+
+	}
+
+	public function actionResetPassword()
+	{
+		$res=array();
+		if (isset($_POST['email'])) {
+			$email= $_POST['email'];
+			$user=User::model()->find('user_id=:user_id',array('user_id'=>$_POST['email']));
+			if ($user) {
+				$id=base64_encode($user->user_id).uniqid();
+				$user->recoveryCode=$id;
+				$user->save();
+				$link="";
+				$link=Yii::app()->params['reader_host'];
+				$link.='/site/forgetPassword/';
+				$link .= $id;
+				$message="Şifre sıfırlama isteği gönderdiniz. <a href='".$link."'>Buraya tıklayarak</a> şifrenizi değiştirebilirsiniz.<br>".$link;
+				$mail=Yii::app()->Smtpmail;
+		        $mail->SetFrom(Yii::app()->params['noreplyEmail'], "OKUTUS Reader");
+		        $mail->Subject= "Password Reset";
+		        $mail->MsgHTML($message);
+		        $mail->AddAddress($email, "");
+		        $meta->created=time();
+		        if($mail->Send())
+		        {
+					$res['result']=1;
+					$res['message']='Şifre sıfırlama bilgileri mail adresinize gönderildi.';
+		        }
+		        else
+		        {
+					$res['result']=0;
+					$res['message']='Mail gönderilemedi! Tekrar Deneyin.';
+		        }
+			}
+			else
+			{
+				$res['result']=0;
+				$res['message']='Girilen email adresine ait kullanıcı bulunamadı.';
+			}
+		}
+		echo json_encode($res);
+	}
+
 	/**
 	 * This is the action to handle external exceptions.
 	 */
