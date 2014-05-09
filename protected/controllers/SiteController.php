@@ -142,7 +142,7 @@ class SiteController extends Controller
 			else
 			{
 				$res['result']=0;
-				$res['message']='Girilen email adresine ait kullnıcı bulunamadı.';
+				$res['message']='Girilen email adresine ait kullanıcı bulunamadı.';
 			}
 		}
 		echo json_encode($res);
