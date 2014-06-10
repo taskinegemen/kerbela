@@ -32,6 +32,50 @@ class SiteController extends Controller
 		$this->render('index');
 	}
 
+	public function actionChangePasswordMobile(){
+		$res=array();
+		if (isset($_POST['email'])) {
+			$email= $_POST['email'];
+			$password= $_POST['password'];
+			$newpassword= $_POST['newpassword'];
+
+			$user=User::model()->find('user_id=:user_id',array('user_id'=>$_POST['email']));
+			if ($user) {
+				if ($password==$user->password) {
+					$user->password=$newpassword;
+					$user->save();
+
+					$message="Şifre Şifreniz başarıyla değiştirilmiş";
+					$mail=Yii::app()->Smtpmail;
+			        $mail->SetFrom(Yii::app()->params['noreplyEmail'], "OKUTUS Reader");
+			        $mail->Subject= "Password Reset";
+			        $mail->MsgHTML($message);
+			        $mail->AddAddress($email, "");
+			        $meta->created=time();
+			        if($mail->Send())
+			        {
+						$res['result']=1;
+						$res['message']='Şifre başarıyla değiştirildi.';
+			        }
+			        else
+			        {
+						$res['result']=0;
+						$res['message']='Mail gönderilemedi! Tekrar Deneyin.';
+			        }
+				}else{
+					$res['result']=0;
+					$res['message']='Şifrenizi yanlış girdiniz!';	
+				}
+			}
+			else
+			{
+				$res['result']=0;
+				$res['message']='Girilen email adresine ait kullanıcı bulunamadı.';
+			}
+		}
+		echo json_encode($res);
+	}
+
 	public function actionSignUp()
 	{
 		$res=array();
@@ -147,6 +191,60 @@ class SiteController extends Controller
 		}
 		echo json_encode($res);
 	}
+
+	public function RandomString()
+	{
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $randstring = '';
+	    for ($i = 0; $i < 8; $i++) {
+	        $randstring = $characters[rand(0, strlen($characters))];
+	    }
+	    return $randstring;
+	}
+
+	public function actionResetPasswordMobile()
+	{
+		$res=array();
+		if (isset($_POST['email'])) {
+			$email= $_POST['email'];
+			$user=User::model()->find('user_id=:user_id',array('user_id'=>$_POST['email']));
+			if ($user) {
+				$id=base64_encode($user->user_id).uniqid();
+
+				$newPass=$this->RandomString();
+
+				$user->password=sha256($newPass);
+
+
+				//$user->recoveryCode=$id;
+				$user->save();
+				$message="Yeni şifreniz oluşturuldu.<br>Şifreniz: ".$newPass."<br>kullanıcı adınız: ".$email;
+				$mail=Yii::app()->Smtpmail;
+		        $mail->SetFrom(Yii::app()->params['noreplyEmail'], "OKUTUS Reader");
+		        $mail->Subject= "Password Reset";
+		        $mail->MsgHTML($message);
+		        $mail->AddAddress($email, "");
+		        $meta->created=time();
+		        if($mail->Send())
+		        {
+					$res['result']=1;
+					$res['message']='Şifre sıfırlama bilgileri mail adresinize gönderildi.';
+		        }
+		        else
+		        {
+					$res['result']=0;
+					$res['message']='Mail gönderilemedi! Tekrar Deneyin.';
+		        }
+			}
+			else
+			{
+				$res['result']=0;
+				$res['message']='Girilen email adresine ait kullanıcı bulunamadı.';
+			}
+		}
+		echo json_encode($res);
+	}
+
 
 	/**
 	 * This is the action to handle external exceptions.
