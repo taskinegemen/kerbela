@@ -151,6 +151,15 @@ class SiteController extends Controller
 
 	}
 
+	public function generateRandomString($length = 10) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, strlen($characters) - 1)];
+	    }
+	    return $randomString;
+	}
+
 	public function actionResetPassword()
 	{
 		$res=array();
@@ -158,7 +167,8 @@ class SiteController extends Controller
 			$email= $_POST['email'];
 			$user=User::model()->find('user_id=:user_id',array('user_id'=>$_POST['email']));
 			if ($user) {
-				$id=base64_encode($user->user_id).uniqid();
+				$id=$this->generateRandomString();
+				//$id=base64_encode($user->user_id).uniqid();
 				$user->recoveryCode=$id;
 				$user->save();
 				$link="";
@@ -171,14 +181,16 @@ class SiteController extends Controller
 		        $mail->Subject= "Password Reset";
 		        $mail->MsgHTML($message);
 		        $mail->AddAddress($email, "");
-		        $meta->created=time();
+		        error_log("sifre sıfırlama id:".$id);
 		        if($mail->Send())
 		        {
+		        	error_log("mail.sent");
 					$res['result']=1;
 					$res['message']='Şifre sıfırlama bilgileri mail adresinize gönderildi.';
 		        }
 		        else
 		        {
+		        	error_log("mail.couldNOT.sent");
 					$res['result']=0;
 					$res['message']='Mail gönderilemedi! Tekrar Deneyin.';
 		        }
