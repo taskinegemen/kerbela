@@ -172,7 +172,7 @@ class SiteController extends Controller
 				$user->recoveryCode=$id;
 				$user->save();
 				$link="";
-				$link=Yii::app()->params['reader_host'];
+				$link=$_POST['reader_host'];
 				$link.='/site/forgetPassword/';
 				$link .= $id;
 				$message="Şifre sıfırlama isteği gönderdiniz. <a href='".$link."'>Buraya tıklayarak</a> şifrenizi değiştirebilirsiniz.<br>".$link;
